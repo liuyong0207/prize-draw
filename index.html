@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>幸运大转盘抽奖系统</title>
+    <title>幸运抽奖系统</title>
     <style>
         * {
             margin: 0;
@@ -11,309 +11,454 @@
             box-sizing: border-box;
             font-family: 'Microsoft YaHei', sans-serif;
         }
-        
         body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: #fff;
-            padding: 20px;
         }
-        
-        .container {
+        .header {
             text-align: center;
-            max-width: 800px;
-            width: 100%;
+            margin-bottom: 30px;
         }
-        
-        h1 {
+        .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
-        .description {
+        .header p {
             font-size: 1.2rem;
-            margin-bottom: 30px;
-            color: #e0e0e0;
+            opacity: 0.9;
         }
-        
-        .wheel-container {
-            position: relative;
-            width: 350px;
-            height: 350px;
-            margin: 0 auto 40px;
-        }
-        
-        .wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            border: 10px solid #ffcc00;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 204, 0, 0.5);
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-        }
-        
-        .wheel-item {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: bottom right;
-            text-align: center;
+        .container {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             justify-content: center;
-            padding-top: 30px;
-            font-weight: bold;
-            color: #333;
-            user-select: none;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
         }
-        
-        .wheel-pointer {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 50px;
-            z-index: 10;
-        }
-        
-        .wheel-pointer::before {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 30px solid #ff3300;
-        }
-        
-        .spin-button {
-            background: linear-gradient(to bottom, #ff9966, #ff5e62);
-            border: none;
-            color: white;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .spin-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .spin-button:disabled {
-            background: linear-gradient(to bottom, #cccccc, #999999);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .result {
-            margin-top: 30px;
+        .lottery-section {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
             border-radius: 15px;
-            backdrop-filter: blur(10px);
-            display: none;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-        
-        .result.show {
-            display: block;
-            animation: fadeIn 0.5s;
+        .participants-box {
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.2);
         }
-        
-        .result h2 {
-            margin-bottom: 10px;
-            color: #ffcc00;
+        .participants-list {
+            position: absolute;
+            width: 100%;
+            transition: top 0.1s ease;
         }
-        
-        .prize-name {
-            font-size: 2rem;
-            color: #ffcc00;
+        .participant {
+            padding: 15px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .highlight {
+            background: rgba(255, 215, 0, 0.3);
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
-        
-        .prizes-list {
+        .prize-buttons {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
-            margin-top: 40px;
+            margin-top: 20px;
         }
-        
-        .prize-item {
+        .prize-btn {
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #FF5722, #FF9800);
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .prize-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .prize-btn:disabled {
+            background: linear-gradient(45deg, #9e9e9e, #607d8b);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .first-prize {
+            background: linear-gradient(45deg, #FF416C, #FF4B2B);
+        }
+        .second-prize {
+            background: linear-gradient(45deg, #4A00E0, #8E2DE2);
+        }
+        .third-prize {
+            background: linear-gradient(45deg, #0072FF, #00C6FF);
+        }
+        .consolation-prize {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+        }
+        .results-section {
             background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .results-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .prize-results {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .prize-result {
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 10px;
-            width: 120px;
-            backdrop-filter: blur(5px);
+            padding: 15px;
+            width: 200px;
+            text-align: center;
         }
-        
-        .prize-item.active {
-            background: rgba(255, 204, 0, 0.3);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+        .prize-result h3 {
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .prize-image {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
         }
-        
-        @media (max-width: 600px) {
-            .wheel-container {
-                width: 280px;
-                height: 280px;
+        .winner-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-top: 10px;
+        }
+        .instructions {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+        }
+        .instructions h2 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .instructions ul {
+            list-style-position: inside;
+            line-height: 1.6;
+        }
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .prize-buttons {
+                flex-direction: column;
             }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .description {
-                font-size: 1rem;
+            .prize-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>幸运抽奖系统</h1>
+        <p>祝大家好运！每人只能中奖一次（安慰奖除外）</p>
+    </div>
+
     <div class="container">
-        <h1>幸运大转盘</h1>
-        <p class="description">点击抽奖按钮，赢取惊喜好礼！100%中奖率！</p>
-        
-        <div class="wheel-container">
-            <div class="wheel" id="wheel">
-                <!-- 转盘选项将由JS动态生成 -->
+        <div class="lottery-section">
+            <h2>抽奖区</h2>
+            <div class="participants-box">
+                <div class="participants-list" id="participantsList">
+                    <!-- 参与者列表将由JS生成 -->
+                </div>
             </div>
-            <div class="wheel-pointer"></div>
+            <div class="prize-buttons">
+                <button class="prize-btn first-prize" id="firstPrizeBtn">一等奖（码表）</button>
+                <button class="prize-btn second-prize" id="secondPrizeBtn">二等奖（头盔）</button>
+                <button class="prize-btn third-prize" id="thirdPrizeBtn">三等奖（手套）</button>
+                <button class="prize-btn consolation-prize" id="consolationPrizeBtn">安慰奖</button>
+            </div>
         </div>
-        
-        <button class="spin-button" id="spin-btn">开始抽奖</button>
-        
-        <div class="result" id="result">
-            <h2>恭喜您获得：</h2>
-            <div class="prize-name" id="prize-name"></div>
-        </div>
-        
-        <div class="prizes-list" id="prizes-list">
-            <!-- 奖品列表将由JS动态生成 -->
+
+        <div class="results-section">
+            <h2>中奖结果</h2>
+            <div class="prize-results">
+                <div class="prize-result">
+                    <h3>一等奖（码表）</h3>
+                    <div class="prize-image">码表图片</div>
+                    <div class="winner-name" id="firstPrizeWinner">尚未抽取</div>
+                </div>
+                <div class="prize-result">
+                    <h3>二等奖（头盔）</h3>
+                    <div class="prize-image">头盔图片</div>
+                    <div class="winner-name" id="secondPrizeWinner">尚未抽取</div>
+                </div>
+                <div class="prize-result">
+                    <h3>三等奖（手套）</h3>
+                    <div class="prize-image">手套图片</div>
+                    <div class="winner-name" id="thirdPrizeWinner">尚未抽取</div>
+                </div>
+                <div class="prize-result">
+                    <h3>安慰奖</h3>
+                    <div class="prize-image">其他图片</div>
+                    <div class="winner-name" id="consolationPrizeWinner">尚未抽取</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <audio id="spin-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-spin-1075.mp3" preload="auto"></audio>
-    <audio id="win-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
+    <div class="instructions">
+        <h2>抽奖规则说明</h2>
+        <ul>
+            <li>一等奖、二等奖、三等奖每个只能抽取一次，安慰奖可以多次抽取</li>
+            <li>每人只能中奖一次（安慰奖除外）</li>
+            <li>中奖信息会保存在浏览器中，刷新页面不会丢失</li>
+        </ul>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 奖品列表
-            const prizes = [
-                { name: "一等奖", color: "#FF6384" },
-                { name: "谢谢参与", color: "#36A2EB" },
-                { name: "二等奖", color: "#FFCE56" },
-                { name: "再接再厉", color: "#4BC0C0" },
-                { name: "三等奖", color: "#9966FF" },
-                { name: "幸运奖", color: "#FF9F40" }
+            // 参与者列表
+            const allParticipants = [
+                "左手", "青苹果", "徐小乐（🙊）", "瑞瑞", "法。。。。。克", 
+                "碧玉的主人", "明天是晴天", "大熊", "ej", "修阙", "小王", 
+                "剑心", "一壶老酒", "u", "静静均速勉强20", "思南", "小k", 
+                "启超", "彭于晏（均速15）", "👁 曾除取半👀", "天宇", "ou"
             ];
+
+            // 不参与安慰奖的人员
+            const noConsolationParticipants = ["左手", "碧玉的主人", "ou", "法。。。。。克"];
             
-            const wheel = document.getElementById('wheel');
-            const spinBtn = document.getElementById('spin-btn');
-            const result = document.getElementById('result');
-            const prizeName = document.getElementById('prize-name');
-            const prizesList = document.getElementById('prizes-list');
-            const spinSound = document.getElementById('spin-sound');
-            const winSound = document.getElementById('win-sound');
-            
-            let isSpinning = false;
-            
-            // 初始化转盘
-            function initWheel() {
-                wheel.innerHTML = '';
-                const sliceAngle = 360 / prizes.length;
+            // 权重加大的人员（二、三等奖）
+            const highWeightParticipants = ["左手", "碧玉的主人", "ou", "法。。。。。克"];
+
+            // 初始化中奖者
+            let winners = {
+                firstPrize: null,
+                secondPrize: null,
+                thirdPrize: null,
+                consolationPrize: []
+            };
+
+            // 从localStorage加载已保存的中奖信息
+            const savedWinners = localStorage.getItem('lotteryWinners');
+            if (savedWinners) {
+                const parsedWinners = JSON.parse(savedWinners);
+                winners = {...winners, ...parsedWinners};
                 
-                prizes.forEach((prize, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'wheel-item';
-                    item.textContent = prize.name;
-                    item.style.transform = `rotate(${index * sliceAngle}deg)`;
-                    item.style.background = `conic-gradient(${prize.color} 0% ${sliceAngle}deg, transparent ${sliceAngle}deg)`;
+                // 更新UI显示
+                if (winners.firstPrize) {
+                    document.getElementById('firstPrizeWinner').textContent = winners.firstPrize;
+                    document.getElementById('firstPrizeBtn').disabled = true;
+                }
+                if (winners.secondPrize) {
+                    document.getElementById('secondPrizeWinner').textContent = winners.secondPrize;
+                    document.getElementById('secondPrizeBtn').disabled = true;
+                }
+                if (winners.thirdPrize) {
+                    document.getElementById('thirdPrizeWinner').textContent = winners.thirdPrize;
+                    document.getElementById('thirdPrizeBtn').disabled = true;
+                }
+                if (winners.consolationPrize.length > 0) {
+                    document.getElementById('consolationPrizeWinner').textContent = 
+                        winners.consolationPrize.join(', ');
+                }
+            }
+
+            // 初始化参与者列表
+            const participantsList = document.getElementById('participantsList');
+            allParticipants.forEach(participant => {
+                const div = document.createElement('div');
+                div.className = 'participant';
+                div.textContent = participant;
+                participantsList.appendChild(div);
+            });
+
+            const participants = document.querySelectorAll('.participant');
+            let scrollInterval = null;
+            let isScrolling = false;
+            let currentPrizeType = '';
+
+            // 开始滚动函数
+            function startScrolling(prizeType) {
+                currentPrizeType = prizeType;
+                isScrolling = true;
+                
+                // 清除所有高亮
+                participants.forEach(p => p.classList.remove('highlight'));
+                
+                // 设置滚动速度
+                const speed = prizeType === 'consolation' ? 80 : 100;
+                
+                scrollInterval = setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * participants.length);
+                    participants.forEach(p => p.classList.remove('highlight'));
+                    participants[randomIndex].classList.add('highlight');
                     
-                    wheel.appendChild(item);
-                });
+                    // 滚动列表
+                    const list = document.getElementById('participantsList');
+                    const highlighted = document.querySelector('.highlight');
+                    if (highlighted) {
+                        const topPos = highlighted.offsetTop;
+                        list.style.top = -topPos + 150 + 'px';
+                    }
+                }, speed);
+            }
+
+            // 停止滚动并选择获奖者
+            function stopScrolling() {
+                clearInterval(scrollInterval);
+                isScrolling = false;
                 
-                // 初始化奖品列表
-                prizes.forEach(prize => {
-                    const prizeItem = document.createElement('div');
-                    prizeItem.className = 'prize-item';
-                    prizeItem.textContent = prize.name;
-                    prizeItem.style.borderLeft = `5px solid ${prize.color}`;
-                    prizesList.appendChild(prizeItem);
+                let availableParticipants = [];
+                
+                if (currentPrizeType === 'first') {
+                    // 一等奖直接指定为徐小乐
+                    const winner = "徐小乐（🙊）";
+                    winners.firstPrize = winner;
+                    document.getElementById('firstPrizeWinner').textContent = winner;
+                    document.getElementById('firstPrizeBtn').disabled = true;
+                    highlightWinner(winner);
+                } else if (currentPrizeType === 'second' || currentPrizeType === 'third') {
+                    // 二、三等奖，权重加大
+                    availableParticipants = allParticipants.filter(p => 
+                        !isAlreadyWinner(p) && 
+                        (currentPrizeType === 'second' ? !winners.secondPrize : !winners.thirdPrize)
+                    );
+                    
+                    // 增加权重
+                    let weightedParticipants = [];
+                    availableParticipants.forEach(p => {
+                        if (highWeightParticipants.includes(p)) {
+                            // 权重加大的人员添加3次
+                            weightedParticipants.push(p, p, p);
+                        } else {
+                            weightedParticipants.push(p);
+                        }
+                    });
+                    
+                    const randomIndex = Math.floor(Math.random() * weightedParticipants.length);
+                    const winner = weightedParticipants[randomIndex];
+                    
+                    if (currentPrizeType === 'second') {
+                        winners.secondPrize = winner;
+                        document.getElementById('secondPrizeWinner').textContent = winner;
+                        document.getElementById('secondPrizeBtn').disabled = true;
+                    } else {
+                        winners.thirdPrize = winner;
+                        document.getElementById('thirdPrizeWinner').textContent = winner;
+                        document.getElementById('thirdPrizeBtn').disabled = true;
+                    }
+                    
+                    highlightWinner(winner);
+                } else if (currentPrizeType === 'consolation') {
+                    // 安慰奖，排除不参与的人员和已中奖人员
+                    availableParticipants = allParticipants.filter(p => 
+                        !noConsolationParticipants.includes(p) && 
+                        !isAlreadyWinner(p)
+                    );
+                    
+                    if (availableParticipants.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * availableParticipants.length);
+                        const winner = availableParticipants[randomIndex];
+                        winners.consolationPrize.push(winner);
+                        document.getElementById('consolationPrizeWinner').textContent = 
+                            winners.consolationPrize.join(', ');
+                        highlightWinner(winner);
+                    } else {
+                        alert('没有可参与安慰奖抽奖的人员了！');
+                    }
+                }
+                
+                // 保存到localStorage
+                localStorage.setItem('lotteryWinners', JSON.stringify(winners));
+            }
+
+            // 检查是否已经是获奖者
+            function isAlreadyWinner(participant) {
+                return winners.firstPrize === participant || 
+                       winners.secondPrize === participant || 
+                       winners.thirdPrize === participant || 
+                       winners.consolationPrize.includes(participant);
+            }
+
+            // 高亮显示获奖者
+            function highlightWinner(winner) {
+                participants.forEach(p => {
+                    p.classList.remove('highlight');
+                    if (p.textContent === winner) {
+                        p.classList.add('highlight');
+                        
+                        // 滚动到获奖者位置
+                        const list = document.getElementById('participantsList');
+                        const topPos = p.offsetTop;
+                        list.style.top = -topPos + 150 + 'px';
+                    }
                 });
             }
-            
-            // 抽奖函数
-            function spinWheel() {
-                if (isSpinning) return;
-                
-                isSpinning = true;
-                spinBtn.disabled = true;
-                result.classList.remove('show');
-                
-                // 播放旋转音效
-                spinSound.currentTime = 0;
-                spinSound.play();
-                
-                // 随机选择奖品
-                const prizeIndex = Math.floor(Math.random() * prizes.length);
-                const selectedPrize = prizes[prizeIndex];
-                
-                // 计算旋转角度 (至少5圈 + 奖品所在角度)
-                const sliceAngle = 360 / prizes.length;
-                const extraAngle = sliceAngle * prizeIndex;
-                const rotations = 5 * 360; // 5圈
-                const totalAngle = rotations + (360 - extraAngle);
-                
-                // 设置转盘旋转
-                wheel.style.transform = `rotate(${totalAngle}deg)`;
-                
-                // 高亮显示中奖奖品
-                const prizeItems = document.querySelectorAll('.prize-item');
-                prizeItems.forEach(item => item.classList.remove('active'));
-                
-                // 显示结果
-                setTimeout(() => {
-                    isSpinning = false;
-                    spinBtn.disabled = false;
-                    
-                    // 播放中奖音效
-                    winSound.currentTime = 0;
-                    winSound.play();
-                    
-                    // 显示中奖信息
-                    prizeName.textContent = selectedPrize.name;
-                    result.classList.add('show');
-                    
-                    // 高亮显示中奖奖品
-                    prizeItems[prizeIndex].classList.add('active');
-                }, 4000);
-            }
-            
-            // 初始化
-            initWheel();
-            
-            // 绑定事件
-            spinBtn.addEventListener('click', spinWheel);
+
+            // 按钮事件监听
+            document.getElementById('firstPrizeBtn').addEventListener('click', function() {
+                if (isScrolling && currentPrizeType === 'first') {
+                    stopScrolling();
+                } else if (!winners.firstPrize) {
+                    startScrolling('first');
+                }
+            });
+
+            document.getElementById('secondPrizeBtn').addEventListener('click', function() {
+                if (isScrolling && currentPrizeType === 'second') {
+                    stopScrolling();
+                } else if (!winners.secondPrize) {
+                    startScrolling('second');
+                }
+            });
+
+            document.getElementById('thirdPrizeBtn').addEventListener('click', function() {
+                if (isScrolling && currentPrizeType === 'third') {
+                    stopScrolling();
+                } else if (!winners.thirdPrize) {
+                    startScrolling('third');
+                }
+            });
+
+            document.getElementById('consolationPrizeBtn').addEventListener('click', function() {
+                if (isScrolling && currentPrizeType === 'consolation') {
+                    stopScrolling();
+                } else {
+                    startScrolling('consolation');
+                }
+            });
         });
     </script>
 </body>
