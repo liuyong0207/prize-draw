@@ -154,7 +154,7 @@
         .rolling-names {
             position: absolute;
             text-align: center;
-            transition: top 0.2s ease;
+            transition: top 0.1s linear;
         }
         
         .rolling-name {
@@ -321,7 +321,7 @@
             </div>
         </div>
         
-        <p class="instruction">提示：每人只能中奖一次，一等奖从特定候选人中抽取</p>
+        <p class="instruction">提示：每人只能中奖一次，祝愿每人都中大奖！</p>
     </div>
 
     <script>
@@ -332,7 +332,8 @@
             "子鱼（企初财税）", "陈杰", "LiaoKang", "浑圆天成 （山地也要冲！", 
             "王冠杰 俺也一样", "Min", "Ou 1", "无恙", "海苔", "仲冬", 
             "左手", "徐小乐（🙊）", "瑞瑞", "法。。。。。克", "碧玉的主人", 
-            "明天是晴天", "大熊", "ej", "修阙", "剑心", "一壶老酒", "u"
+            "明天是晴天", "大熊", "ej", "修阙", "剑心", "一壶老酒", "u",
+            "张浩", "汪大超", "帅徐芸"
         ];
 
         // 一等奖候选人（特殊限制）
@@ -352,7 +353,21 @@
         let isDrawing = false;
         let drawInterval = null;
         let currentPrizeType = null;
-        let availableParticipants = [...allParticipants];
+
+        // 获取可抽奖候选人
+        function getCandidates(prizeType) {
+            // 获取所有未中奖的人员
+            let candidates = allParticipants.filter(person => 
+                !Object.values(winners).flat().includes(person)
+            );
+            
+            // 特殊规则：仲冬不参与安慰奖抽奖
+            if (prizeType === 'consolation') {
+                candidates = candidates.filter(person => person !== "仲冬");
+            }
+            
+            return candidates;
+        }
 
         // 开始抽奖
         function startDraw(prizeType) {
@@ -375,18 +390,8 @@
                 return;
             }
             
-            // 检查是否还有可用候选人
-            let candidates;
-            if (prizeType === 'first') {
-                candidates = firstPrizeCandidates.filter(person => 
-                    !winners.first.includes(person) && 
-                    !Object.values(winners).flat().includes(person)
-                );
-            } else {
-                candidates = allParticipants.filter(person => 
-                    !Object.values(winners).flat().includes(person)
-                );
-            }
+            // 获取可抽奖候选人
+            let candidates = getCandidates(prizeType);
             
             if (candidates.length === 0) {
                 alert("没有更多候选人了！");
@@ -426,16 +431,16 @@
             // 设置初始滚动位置
             rollingNames.style.top = '0';
             
-            // 开始滚动动画
+            // 开始快速滚动动画
             let position = 0;
-            const rollingHeight = rollingNames.scrollHeight / 2; // 因为我们复制了一份名单
+            const rollingHeight = rollingNames.scrollHeight / 2;
             drawInterval = setInterval(() => {
-                position -= 2;
+                position -= 5; // 更快的滚动速度
                 if (-position >= rollingHeight) {
                     position = 0;
                 }
                 rollingNames.style.top = position + 'px';
-            }, 50);
+            }, 30); // 更短的间隔时间，实现快速滚动
         }
 
         // 停止抽奖并确定获奖者
@@ -452,36 +457,50 @@
             display.style.display = 'flex';
             
             // 确定最终获奖者
-            let candidates;
+            let winner;
             if (prizeType === 'first') {
-                candidates = firstPrizeCandidates.filter(person => 
+                // 一等奖从所有参与者中抽取，但最终结果必须是一等奖候选人
+                const availableFirstPrizeCandidates = firstPrizeCandidates.filter(person => 
                     !winners.first.includes(person) && 
                     !Object.values(winners).flat().includes(person)
                 );
-            } else {
-                candidates = allParticipants.filter(person => 
-                    !Object.values(winners).flat().includes(person)
-                );
                 
-                // 对于三等奖，确保包含仲冬（如果还未中奖）
-                if (prizeType === 'third' && 
-                    !winners.third.includes("仲冬") && 
-                    !Object.values(winners).flat().includes("仲冬") &&
-                    candidates.includes("仲冬")) {
-                    // 增加仲冬的中奖概率
-                    for (let i = 0; i < 5; i++) {
-                        candidates.push("仲冬");
-                    }
+                if (availableFirstPrizeCandidates.length === 0) {
+                    display.textContent = "无可用一等奖候选人";
+                    return;
                 }
+                
+                const winnerIndex = Math.floor(Math.random() * availableFirstPrizeCandidates.length);
+                winner = availableFirstPrizeCandidates[winnerIndex];
+            } else if (prizeType === 'third') {
+                // 三等奖确保包含仲冬（如果还未中奖）
+                let availableCandidates = getCandidates(prizeType);
+                
+                if (availableCandidates.length === 0) {
+                    display.textContent = "无可用候选人";
+                    return;
+                }
+                
+                // 如果仲冬还未中奖，且还在候选人中，确保仲冬中奖
+                if (!winners.third.includes("仲冬") && 
+                    !Object.values(winners).flat().includes("仲冬") &&
+                    availableCandidates.includes("仲冬")) {
+                    winner = "仲冬";
+                } else {
+                    const winnerIndex = Math.floor(Math.random() * availableCandidates.length);
+                    winner = availableCandidates[winnerIndex];
+                }
+            } else {
+                let availableCandidates = getCandidates(prizeType);
+                
+                if (availableCandidates.length === 0) {
+                    display.textContent = "无可用候选人";
+                    return;
+                }
+                
+                const winnerIndex = Math.floor(Math.random() * availableCandidates.length);
+                winner = availableCandidates[winnerIndex];
             }
-            
-            if (candidates.length === 0) {
-                display.textContent = "无可用候选人";
-                return;
-            }
-            
-            const winnerIndex = Math.floor(Math.random() * candidates.length);
-            const winner = candidates[winnerIndex];
             
             // 记录获奖者
             winners[prizeType].push(winner);
